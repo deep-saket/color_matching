@@ -1,0 +1,32 @@
+# files/settings.yml
+swatch_matcher:
+  args:
+    swatch_path: /Users/saketm10/Projects/color_matching/dataset/hair_swatches
+    device: mps
+    hair_segmentation_candidate: HairSegmentor
+    embedding_candidate: ViTB32Infer
+    models:
+      - HairSegmentor
+      - ViTB32Infer
+
+model_manager:
+  general:
+    huggingface_api_token: ""
+    model_loading: "local"
+  models:
+    QwenV25Infer:
+      model_name_or_url: "Qwen/Qwen2.5-VL-3B-Instruct"
+      device: mps
+      api_endpoint": ""
+    ColPaliInfer:
+      model_name_or_url: "vidore/colqwen2-v1.0"
+      device: mps
+      api_endpoint": ""
+    ViTB32Infer:
+      model_name_or_url: "ViT-B/32"
+      device: mps
+      api_endpoint": ""
+    HairSegmentor:
+      model_name_or_url: "mediapipe_model"
+      device: mps
+      api_endpoint": ""
