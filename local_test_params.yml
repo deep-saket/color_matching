@@ -1,0 +1,3 @@
+# args.yml
+image_path: "/path/to/portrait.jpg"
+threshold: 0.93
