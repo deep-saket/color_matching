@@ -1,1 +1,2 @@
 from src.SwatchMatcher import SwatchMatcher
+from src.SwatchMatchGenerator import SwatchMatchGenerator

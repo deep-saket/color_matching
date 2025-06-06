@@ -4,12 +4,12 @@ from PIL import Image
 from mediapipe import solutions as mp_solutions
 from common import InferenceVisionComponent
 
-class HairSegmenter(InferenceVisionComponent):
+class MediapipeHairSegmenter(InferenceVisionComponent):
     def __init__(self, **kwargs):
         super().__init__()
         self.segmentor = mp_solutions.selfie_segmentation.SelfieSegmentation(model_selection=1)
 
-    def segment(self, image: Image.Image) -> Image.Image:
+    def infer(self, image: Image.Image) -> Image.Image:
         img_bgr = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
         result = self.segmentor.process(img_bgr)
         mask = result.segmentation_mask > 0.6

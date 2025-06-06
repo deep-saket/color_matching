@@ -57,6 +57,7 @@ class ModelManager(BaseComponent):
             try:
                 module = importlib.import_module(module_name)
             except ModuleNotFoundError as e:
+                cls.logger.exception(f"Could not import module '{module_name}' for class '{class_name}'")
                 raise ImportError(f"Could not import module '{module_name}' for class '{class_name}'") from e
 
             # 3) Retrieve the class object

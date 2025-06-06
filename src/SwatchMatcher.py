@@ -4,11 +4,12 @@ import torch
 from io import BytesIO
 from PIL import Image
 from common import BaseComponent
-from config.loader import settings
+from config.loader import settings, artifacts_dir
 from models import ModelManager
-from src.PatchMatcher import PatchMatcher
+from src.helpers.PatchMatcher import PatchMatcher
 from typing import Union
-from PIL import Image as PILImage
+from uuid import uuid4
+
 
 class SwatchMatcher(BaseComponent):
     def __init__(self, threshold: float = None):
@@ -36,11 +37,12 @@ class SwatchMatcher(BaseComponent):
             raise ValueError(f"swatch_path must be a directory, got: {swatch_path}")
 
         self.swatches = []
+        
         for img_file in sorted(swatch_dir.iterdir()):
             if img_file.suffix.lower() not in {".jpg", ".jpeg", ".png"}:
                 continue
             img = Image.open(img_file).convert("RGB")
-            emb = self.embedder.get_image_embedding(img)
+            emb = self.embedder.encode_image(img)
             self.swatches.append({"name": img_file.name, "embedding": emb})
 
         if not self.swatches:
@@ -53,7 +55,7 @@ class SwatchMatcher(BaseComponent):
             threshold=self.threshold
         )
 
-    def match(self, image_data: Union[bytes, str, Image.Image], prompt: str = None) -> str:
+    def match(self, image_data: Union[bytes, str, Image.Image]) -> str:
         # Load input image
         if isinstance(image_data, bytes):
             img = Image.open(BytesIO(image_data)).convert("RGB")
@@ -64,8 +66,21 @@ class SwatchMatcher(BaseComponent):
         else:
             raise TypeError(f"Unsupported image_data type: {type(image_data)}")
 
+        if isinstance(image_data, str):
+            output_dir = os.path.join(artifacts_dir, os.path.basename(image_data))
+        else:
+            output_dir = str(uuid4())
+        os.makedirs(output_dir, exist_ok=True)
+
         # Segment hair and match patches
-        hair_region = self.segmenter.segment(img)
+        try:
+            hair_region = self.segmenter.infer(img)
+        except Exception as e:
+            self.logger.exception(f"Error segmenting hair: {e}")
+            return "Error segmenting hair"
+        hair_region.save(os.path.join(output_dir, "hair_region.png"))
         best_name, best_score = self.patch_matcher.match(hair_region)
+
+        self.logger.info(f"Best match: {best_name} (score: {best_score:.2f})")
 
         return best_name

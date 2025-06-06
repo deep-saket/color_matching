@@ -3,16 +3,25 @@ swatch_matcher:
   args:
     swatch_path: /Users/saketm10/Projects/color_matching/dataset/hair_swatches
     device: mps
-    hair_segmentation_candidate: HairSegmentor
+    hair_segmentation_candidate: MediapipeHairSegmenter
     embedding_candidate: ViTB32Infer
     models:
-      - HairSegmentor
+      - MediapipeHairSegmenter
       - ViTB32Infer
+
+swatch_match_generator:
+  args:
+    swatch_path: /Users/saketm10/Projects/color_matching/dataset/hair_swatches
+    device: mps
+    vlm_candidate: QwenV25Infer
+    models:
+      - QwenV25Infer
 
 model_manager:
   general:
     huggingface_api_token: ""
     model_loading: "local"
+    cache_dir: "models/cache"
   models:
     QwenV25Infer:
       model_name_or_url: "Qwen/Qwen2.5-VL-3B-Instruct"
@@ -23,10 +32,17 @@ model_manager:
       device: mps
       api_endpoint": ""
     ViTB32Infer:
-      model_name_or_url: "ViT-B/32"
+      model_name_or_url: "openai/clip-vit-base-patch32"
       device: mps
       api_endpoint": ""
-    HairSegmentor:
+    MediapipeHairSegmenter:
       model_name_or_url: "mediapipe_model"
       device: mps
       api_endpoint": ""
+
+shared:
+  artifacts_dir: others
+
+swatch_details:
+  args:
+    save_path: dataset/swatch_details.json

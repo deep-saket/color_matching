@@ -11,7 +11,7 @@ class PatchMatcher(BaseComponent):
         threshold: float = 0.93
     ):
         """
-        embedder: instance providing get_image_embedding(Image) -> Tensor
+        embedder: instance providing encode_image(Image) -> Tensor
         swatches: list of {"name": str, "embedding": Tensor}
         threshold: minimum cosine similarity to count as a match
         """
@@ -41,7 +41,7 @@ class PatchMatcher(BaseComponent):
         for top in range(0, h - ph + 1, sy):
             for left in range(0, w - pw + 1, sx):
                 patch = image.crop((left, top, left + pw, top + ph))
-                emb = self.embedder.get_image_embedding(patch)
+                emb = self.embedder.encode_image(patch)
                 for sw in self.swatches:
                     score = torch.nn.functional.cosine_similarity(
                         emb, sw["embedding"], dim=-1

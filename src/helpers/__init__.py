@@ -1,0 +1,1 @@
+from src.helpers.SwatchDetails import SwatchDetails
