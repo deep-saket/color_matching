@@ -1,5 +1,7 @@
-from typing import List, Union
+from typing import List, Union, Tuple
 from PIL import Image
+import Levenshtein
+import logging
 from common import BaseComponent, InferenceVLComponent
 from config.loader import settings
 from models import ModelManager
@@ -25,11 +27,12 @@ class SwatchMatchGenerator(BaseComponent):
         ModelManager.initialize_models(self.device, model_classes)
         self.vlm_model = getattr(ModelManager, self.vlm_candidate)
 
+        self.logger = logging.getLogger(__name__)
 
         # 2) Load swatch details using SwatDetails
-        swatch_details = SwatchDetails(self.swatch_path, self.vlm_model)
-        self.color_names = list(swatch_details.values())
-
+        self.swatch_details = SwatchDetails(self.swatch_path, self.vlm_model)
+        self.color_names = list(self.swatch_details.values())
+        self.color_names_lower = [name.lower() for name in self.color_names]
 
     def _format_prompt(self, swatch_names: List[str]) -> str:
         """
@@ -66,7 +69,25 @@ class SwatchMatchGenerator(BaseComponent):
 
         # Ensure the response is one of the provided swatch names
         response = response.strip()
-        if response not in self.color_names:
-            raise ValueError(f"Model response '{response}' is not in the provided swatch names list")
+        response_lower = response.lower()
 
-        return response
+        if response in self.color_names:
+            image_name = self.swatch_details.get_image_name(response)
+            self.logger.info(f"Exact match found for swatch: {response} (image: {image_name})")
+            return response
+
+        # Find closest match using Levenshtein distance
+        distances = [(name, Levenshtein.distance(response_lower, name.lower()))
+                     for name in self.color_names]
+        closest_match = min(distances, key=lambda x: x[1])
+
+        
+        if closest_match[1] <= 2:  # Allow small differences
+            image_name = next((k for k, v in self.swatch_details.items() if v == closest_match[0]), None)
+            self.logger.info(
+                f"Found close match: '{closest_match[0]}' (image: {image_name}) for response: '{response}'")
+            return image_name
+        else:
+            self.logger.error(f"No matching swatch found for response: '{response}'")
+            raise ValueError(f"Model response '{response}' is not in the provided swatch names list")
+        
