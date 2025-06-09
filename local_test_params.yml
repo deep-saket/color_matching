@@ -1,4 +1,4 @@
 # args.yml
 image_path: "/Users/saketm10/Projects/color_matching/dataset/potraits/1.png"
 threshold: 0.93
-method: SwatchMatchGenerator
+method: HairMatchGeneratorCV

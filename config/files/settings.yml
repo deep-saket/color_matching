@@ -1,4 +1,7 @@
 # files/settings.yml
+general:
+  artefacts_dir: /Users/saketm10/Projects/color_matching/scratch
+
 swatch_matcher:
   args:
     swatch_path: /Users/saketm10/Projects/color_matching/dataset/hair_swatches
@@ -16,6 +19,10 @@ swatch_match_generator:
     vlm_candidate: QwenV25Infer
     models:
       - QwenV25Infer
+
+hair_match_generator:
+  args:
+    swatch_path: /Users/saketm10/Projects/color_matching/dataset/hair_swatches
 
 model_manager:
   general:
@@ -46,3 +53,4 @@ shared:
 swatch_details:
   args:
     save_path: dataset/swatch_details.json
+

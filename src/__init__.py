@@ -1,2 +1,3 @@
 from src.SwatchMatcher import SwatchMatcher
 from src.SwatchMatchGenerator import SwatchMatchGenerator
+from src.HairMatchGeneratorCV import HairMatchGeneratorCV
